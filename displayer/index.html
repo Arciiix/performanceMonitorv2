@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Performance monitor</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/index.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="onlineStatus offline">
+        <span class="onlineStatusText">Offline</span>
+      </div>
+      <div class="RAM chart"></div>
+      <div class="DISK chart"></div>
+      <div class="TEMPERATURE chart"></div>
+      <div class="WIFISIGNAL chart"></div>
+      <div class="upTime">
+        <span class="upTimeText">00:00:00</span>
+      </div>
+    </div>
+    <script src="scripts/apexcharts.js"></script>
+    <script src="scripts/socket.io.js"></script>
+    <script src="scripts/charts.js"></script>
+  </body>
+</html>
