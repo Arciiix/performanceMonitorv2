@@ -59,6 +59,22 @@ body {
   font-size: 6vw;
 }
 
+.icon {
+  position: absolute;
+  left: 10px;
+  bottom: 5px;
+  font-size: 50px;
+  color: white;
+  transition: color 0.25s;
+}
+.icon:hover {
+  cursor: pointer;
+  color: #e0edff;
+}
+.icon:active {
+  color: #c4ddff;
+}
+
 @media only screen and (max-width: 400px) {
   .chart {
     width: 50vw;

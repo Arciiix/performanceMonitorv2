@@ -2,9 +2,14 @@ const socket = io("http://192.168.0.120:7373");
 
 let charts = {};
 
-const upTimeText = document.querySelector(".upTimeText");
+const upTimeText = document.querySelectorAll(".upTimeText");
 const onlineStatusDiv = document.querySelector(".onlineStatus");
 const onlineStatusText = document.querySelector(".onlineStatusText");
+
+const currentContainer = document.querySelector(".container");
+const historyContainer = document.querySelector(".historyContainer");
+
+const buttonIcon = document.querySelectorAll(".icon");
 
 const { ipcRenderer } = require("electron");
 
@@ -13,6 +18,8 @@ let currUpTime = 0,
   upTimeInterval;
 
 let isOnline = false;
+
+let isCurrentUsageSiteActive = true;
 
 class Chart {
   currentValue = 0;
@@ -114,7 +121,7 @@ function updateUpTime() {
   /* it doesn't work because when the time is above 1 day, it resets (because the day value increments in date) and the value is above 30/31 days, the same thing happens with month value
   let date = new Date(null);
   date.setSeconds(currUpTime);
-  upTimeText.innerText = date.toISOString().substr(11, 8);
+  upTimeText.forEach(e => e.innerText = date.toISOString().substr(11, 8));
   */
   let tempUpTime = currUpTime;
   let days = Math.floor(tempUpTime / 86400);
@@ -130,7 +137,9 @@ function updateUpTime() {
   minutes = addZero(minutes);
   seconds = addZero(seconds);
 
-  upTimeText.innerText = `${days}:${hours}:${minutes}:${seconds}`;
+  upTimeText.forEach(
+    (e) => (e.innerText = `${days}:${hours}:${minutes}:${seconds}`)
+  );
   currUpTime++;
 }
 function addZero(value) {
@@ -158,6 +167,90 @@ charts.ramUsage = new Chart("RAM", 0, "RAM", "%");
 charts.usedSpace = new Chart("Miejsce", 0, "DISK", "%");
 charts.temperature = new Chart("Temp", 0, "TEMPERATURE", "°C");
 charts.wifiSignalStrength = new Chart("Zasięg", 0, "WIFISIGNAL", "%");
+
+class HistoryChart {
+  constructor(values, divClass) {
+    const options = {
+      chart: {
+        width: "100%",
+        height: "100%",
+        type: "line",
+      },
+      series: [
+        {
+          name: "RAM",
+          data: values.ramUsage,
+        },
+        {
+          name: "Used space",
+          data: values.usedSpace,
+        },
+        {
+          name: "Temperature",
+          data: values.temperature,
+        },
+        {
+          name: "Wi-Fi signal strength",
+          data: values.wifiSignalStrength,
+        },
+      ],
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        curve: "smooth",
+      },
+      xaxis: {
+        labels: {
+          show: false,
+        },
+      },
+    };
+    this.chart = new ApexCharts(
+      document.querySelector(`.${divClass}`),
+      options
+    );
+    this.chart.render();
+  }
+  updateSeries(newValues) {
+    this.chart.appendData([
+      {
+        data: [parseInt(newValues.ramUsage)],
+      },
+      {
+        data: [parseInt(newValues.usedSpace)],
+      },
+      {
+        data: [parseInt(newValues.temperature)],
+      },
+      {
+        data: [parseInt(newValues.wifiSignalStrength)],
+      },
+    ]);
+  }
+}
+let historyChart = new HistoryChart(
+  {
+    ramUsage: [0],
+    usedSpace: [0],
+    temperature: [0],
+    wifiSignalStrength: [0],
+  },
+  "historyChart"
+);
+
+function toogleSites() {
+  //Switch between current and history usage sites
+  isCurrentUsageSiteActive = !isCurrentUsageSiteActive;
+  if (isCurrentUsageSiteActive) {
+    currentContainer.style.display = "grid";
+    historyContainer.style.display = "none";
+  } else {
+    currentContainer.style.display = "none";
+    historyContainer.style.display = "grid";
+  }
+}
+buttonIcon.forEach((e) => e.addEventListener("click", toogleSites));
 
 let defaultOptions = {
   ramUsage: 0,
@@ -189,6 +282,9 @@ socket.on("performanceData", (usage) => {
     }
     upTimeInterval = setInterval(updateUpTime, 1000);
   }
+
+  //Update the history chart data
+  historyChart.updateSeries(newUsage);
 
   //If the online status is not set, set it
   if (!isOnline) {

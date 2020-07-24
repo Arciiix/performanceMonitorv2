@@ -1,0 +1,18 @@
+.historyContainer {
+  display: none; /* By default, the history is hidden */
+  width: 99vw;
+  height: 98vh;
+  grid-template-columns: 0.1fr 1.8fr 1.8fr 0.1fr;
+  grid-template-rows: 0.1fr 1.4fr 1.4fr 0.1fr 0.3fr 0.1fr;
+  gap: 1px 1px;
+  grid-template-areas: ". . . ." ". chart chart ." ". chart chart ." ". . . ." ". upTimeSpan upTimeSpan ." ". . . .";
+}
+
+.upTimeSpan {
+  grid-area: upTimeSpan;
+}
+.historyChartContainer {
+  background-color: white;
+  padding: 50px;
+  grid-area: chart;
+}
