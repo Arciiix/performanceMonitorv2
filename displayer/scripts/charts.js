@@ -15,7 +15,7 @@ let currUpTime = 0,
 let isOnline = false;
 
 class Chart {
-  constructor(label, value, divClass, showPercent) {
+  constructor(label, value, divClass, whatToShowAfterValue) {
     const options = {
       chart: {
         width: "100%",
@@ -55,13 +55,9 @@ class Chart {
               offsetY: "30%",
               fontFamily: "Roboto",
               show: true,
-              formatter: !showPercent
-                ? (val) => {
-                    return parseInt(val);
-                  }
-                : (val) => {
-                    return parseInt(val) + "%";
-                  },
+              formatter: (val) => {
+                return parseInt(val) + whatToShowAfterValue;
+              },
             },
           },
         },
@@ -116,10 +112,10 @@ function setOnlineStatus(isOnline, hostname) {
   }
 }
 
-charts.ramUsage = new Chart("RAM", 0, "RAM", true);
-charts.usedSpace = new Chart("Miejsce", 0, "DISK", true);
-charts.temperature = new Chart("Temp", 0, "TEMPERATURE", false);
-charts.wifiSignalStrength = new Chart("Zasięg", 0, "WIFISIGNAL", true);
+charts.ramUsage = new Chart("RAM", 0, "RAM", "%");
+charts.usedSpace = new Chart("Miejsce", 0, "DISK", "%");
+charts.temperature = new Chart("Temp", 0, "TEMPERATURE", "°C");
+charts.wifiSignalStrength = new Chart("Zasięg", 0, "WIFISIGNAL", "%");
 
 let defaultOptions = {
   ramUsage: 0,
