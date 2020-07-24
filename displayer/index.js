@@ -57,4 +57,14 @@ app.on("ready", () => {
       mainWindow.setTitle("Performance monitor - disconnected");
     }
   });
+
+  ipcMain.on("flashTheIcon", () => {
+    //If device connects, disconnects or has too many usage on itself
+    mainWindow.flashFrame(true);
+  });
+
+  mainWindow.on("focus", () => {
+    //Stop flashing the icon
+    mainWindow.flashFrame(false);
+  });
 });

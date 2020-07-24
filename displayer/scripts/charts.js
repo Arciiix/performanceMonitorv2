@@ -101,6 +101,7 @@ class Chart {
     if (this.currentValue == value) return;
     if ((!isInverted && value > 89) || (isInverted && value < 15)) {
       colour = "#ba3329";
+      flashTheIcon();
     } else {
       colour = "#3579b8";
     }
@@ -276,6 +277,8 @@ socket.on("performanceData", (usage) => {
       hostname: newUsage.hostname,
     });
 
+    flashTheIcon();
+
     currUpTime = newUsage.upTime;
     if (upTimeInterval) {
       clearInterval(upTimeInterval);
@@ -307,8 +310,13 @@ socket.on("disconnect", () => {
 
   //Update online status
   setOnlineStatus(false);
+  flashTheIcon();
 
   ipcRenderer.send("activeStatusChange", {
     isActive: false,
   });
 });
+
+function flashTheIcon() {
+  ipcRenderer.send("flashTheIcon");
+}
