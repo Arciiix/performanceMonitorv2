@@ -24,18 +24,27 @@ const iwconfig = require("wireless-tools/iwconfig"); //WIFI SIGNAL STRENGTH
 async function getInfo() {
   let ramUsage, usedSpace, temperature, wifiSignalStrength, upTime, hostname;
   try {
-    ramUsage = await new Promise((resolve, reject) => {
-      si.mem()
+    //Get ramUsage, upTime and hostname at one request
+    ({ ramUsage, upTime, hostname } = await new Promise((resolve, reject) => {
+      si.get({
+        mem: "used, total",
+        time: "uptime",
+        osInfo: "hostname",
+      })
         .then((data) => {
           let percent;
-          percent = data.used / data.total;
+          percent = data.mem.used / data.mem.total;
           percent *= 100;
-          resolve(Math.round(percent));
+          resolve({
+            ramUsage: Math.round(percent),
+            upTime: data.time.uptime,
+            hostname: data.osInfo.hostname,
+          });
         })
         .catch((err) => {
           reject(err);
         });
-    });
+    }));
 
     usedSpace = await new Promise((resolve, reject) => {
       checkDiskSpace(OPTIONS.isWindows ? "C:/" : "/")
@@ -72,20 +81,6 @@ async function getInfo() {
         });
       });
     }
-
-    upTime = await new Promise(async (resolve, reject) => {
-      resolve(await si.time().uptime);
-    });
-
-    hostname = await new Promise((resolve, reject) => {
-      si.osInfo()
-        .then((data) => {
-          resolve(data.hostname);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
   } catch (err) {
     console.log(err);
     return;
