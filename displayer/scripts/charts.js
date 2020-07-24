@@ -15,6 +15,7 @@ let currUpTime = 0,
 let isOnline = false;
 
 class Chart {
+  currentValue = 0;
   constructor(label, value, divClass, whatToShowAfterValue) {
     const options = {
       chart: {
@@ -85,6 +86,26 @@ class Chart {
   updateSeries(newValue) {
     if (isNaN(newValue) || newValue > 100 || newValue < 0) return;
     this.chart.updateSeries([newValue]);
+    this.currentValue = newValue;
+  }
+
+  setColour(value, isInverted) {
+    let colour;
+    if (this.currentValue == value) return;
+    if ((!isInverted && value > 89) || (isInverted && value < 15)) {
+      colour = "#ba3329";
+    } else {
+      colour = "#3579b8";
+    }
+    this.chart.updateOptions({
+      plotOptions: {
+        radialBar: {
+          hollow: {
+            background: colour,
+          },
+        },
+      },
+    });
   }
 }
 
@@ -151,6 +172,7 @@ socket.on("performanceData", (usage) => {
   let newUsage = { ...defaultOptions, ...usage };
   for (let [key, value] of Object.entries(newUsage)) {
     if (charts[key]) {
+      charts[key].setColour(value, key == "wifiSignalStrength" ? true : false);
       charts[key].updateSeries(value);
     }
   }
