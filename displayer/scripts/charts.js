@@ -90,10 +90,31 @@ class Chart {
 
 function updateUpTime() {
   //Convert the seconds to HH:MM:SS
+  /* it doesn't work because when the time is above 1 day, it resets (because the day value increments in date) and the value is above 30/31 days, the same thing happens with month value
   let date = new Date(null);
   date.setSeconds(currUpTime);
   upTimeText.innerText = date.toISOString().substr(11, 8);
+  */
+  let tempUpTime = currUpTime;
+  let days = Math.floor(tempUpTime / 86400);
+  tempUpTime -= days * 86400;
+  let hours = Math.floor(tempUpTime / 3600);
+  tempUpTime -= hours * 3600;
+  let minutes = Math.floor(tempUpTime / 60);
+  tempUpTime -= minutes * 60;
+  let seconds = tempUpTime;
+
+  days = addZero(days);
+  hours = addZero(hours);
+  minutes = addZero(minutes);
+  seconds = addZero(seconds);
+
+  upTimeText.innerText = `${days}:${hours}:${minutes}:${seconds}`;
   currUpTime++;
+}
+function addZero(value) {
+  //When value is lower than 10, add 0
+  return value < 10 ? "0" + value : value.toString();
 }
 
 function setOnlineStatus(isOnline, hostname) {
