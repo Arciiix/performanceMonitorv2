@@ -3,7 +3,7 @@ const electron = require("electron");
 const url = require("url");
 const path = require("path");
 
-const { app, BrowserWindow, screen } = electron;
+const { app, BrowserWindow, screen, ipcMain } = electron;
 
 let mainWindow;
 
@@ -26,6 +26,9 @@ app.on("ready", () => {
     minHeight: 600,
     minWidth: 800,
     icon: pathToIcon,
+    webPreferences: {
+      nodeIntegration: true,
+    },
   });
 
   //Load the site into the window
@@ -37,11 +40,21 @@ app.on("ready", () => {
   );
 
   //Set the title of the window
-  mainWindow.setTitle("Performance monitor"); //TODO - The initial title will be - disconnected, but when the collector connects, it changes to connected
+  mainWindow.setTitle("Performance monitor - disconnected");
 
   //Hide the menu - the app doesn't use it
   mainWindow.setMenu(null);
 
   //DEV - Open dev tools
   //mainWindow.webContents.openDevTools();
+
+  ipcMain.on("activeStatusChange", (event, arg) => {
+    if (arg.isActive) {
+      mainWindow.setTitle(
+        `Performance monitor - connected with ${arg.hostname}`
+      );
+    } else {
+      mainWindow.setTitle("Performance monitor - disconnected");
+    }
+  });
 });

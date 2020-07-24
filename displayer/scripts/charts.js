@@ -1,5 +1,3 @@
-//DEV
-//const socket = io("http://localhost:7373");
 const socket = io("http://192.168.0.120:7373");
 
 let charts = {};
@@ -7,6 +5,8 @@ let charts = {};
 const upTimeText = document.querySelector(".upTimeText");
 const onlineStatusDiv = document.querySelector(".onlineStatus");
 const onlineStatusText = document.querySelector(".onlineStatusText");
+
+const { ipcRenderer } = require("electron");
 
 //Current uptime - I don't fetch it every time, I just set interval
 let currUpTime = 0,
@@ -178,6 +178,11 @@ socket.on("performanceData", (usage) => {
   }
   if (currUpTime < 10) {
     //For safety, it depends on the performance, 0 is very rarely
+    ipcRenderer.send("activeStatusChange", {
+      isActive: true,
+      hostname: newUsage.hostname,
+    });
+
     currUpTime = newUsage.upTime;
     if (upTimeInterval) {
       clearInterval(upTimeInterval);
@@ -206,4 +211,8 @@ socket.on("disconnect", () => {
 
   //Update online status
   setOnlineStatus(false);
+
+  ipcRenderer.send("activeStatusChange", {
+    isActive: false,
+  });
 });
